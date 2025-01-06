@@ -132,7 +132,6 @@ impl Visitor for PgnInfoBuilder {
         assert_ne!(self.white_player, None);
         assert_ne!(self.black_player, None);
         assert_ne!(self.date, None);
-        assert_ne!(self.moves.len(), 0);
 
         Pgn {
             white_player: CcrlLivePlayer::new(self.white_player.clone().unwrap()),
