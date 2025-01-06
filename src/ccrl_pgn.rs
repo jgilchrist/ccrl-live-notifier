@@ -1,6 +1,6 @@
 use std::hash::{Hash, Hasher};
 use pgn_reader::{BufferedReader, RawComment, RawHeader, SanPlus, Skip, Visitor};
-use anyhow::Result;
+use anyhow::{bail, Result};
 use crate::ccrllive::{CcrlLivePlayer};
 
 const WHITE_HEADER_KEY: &str = "White";
@@ -145,7 +145,11 @@ impl Visitor for PgnInfoBuilder {
 pub fn get_pgn_info(pgn: &str) -> Result<Pgn> {
     let mut reader = BufferedReader::new_cursor(pgn);
 
-    let pgn_info = reader.read_game(&mut PgnInfoBuilder::new()).expect("Unable to parse PGN").unwrap();
+    let pgn_info = reader.read_game(&mut PgnInfoBuilder::new())?;
+
+    let Some(pgn_info) = pgn_info else {
+        bail!("Empty PGN")
+    };
 
     Ok(pgn_info)
 }
