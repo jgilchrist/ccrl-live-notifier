@@ -22,6 +22,10 @@ fn get_current_games(config: &Config) -> Vec<(CcrlLiveRoom, Pgn)> {
             continue;
         };
 
+        let Some(pgn) = pgn else {
+            continue;
+        };
+
         // Don't consider games which are still in book to have started since we need all the book
         // moves so we can hash the game correctly
         if !pgn.out_of_book() {

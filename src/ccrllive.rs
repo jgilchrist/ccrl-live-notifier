@@ -63,12 +63,20 @@ impl std::hash::Hash for CcrlLivePlayer {
     }
 }
 
-pub fn get_current_pgn(room: &CcrlLiveRoom) -> Result<Pgn> {
-    let response = reqwest::blocking::get(room.pgn_url())?.error_for_status()?;
+pub fn get_current_pgn(room: &CcrlLiveRoom) -> Result<Option<Pgn>> {
+    let client = reqwest::blocking::Client::builder()
+        .redirect(reqwest::redirect::Policy::none())
+        .build()?;
+
+    let response = client.get(room.pgn_url()).send()?.error_for_status()?;
+
+    if response.status() != reqwest::StatusCode::OK {
+        return Ok(None);
+    }
 
     let pgn_content = response.text()?;
 
     let pgn_info = ccrl_pgn::get_pgn_info(&pgn_content)?;
 
-    Ok(pgn_info)
+    Ok(Some(pgn_info))
 }
