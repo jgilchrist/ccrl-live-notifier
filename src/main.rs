@@ -36,10 +36,6 @@ fn main() -> ! {
     loop {
         let current_games = get_current_games(&config);
 
-        for (room, game) in &current_games {
-            println!("[{}] Saw game: {} vs {}", room.code(), &game.white_player, &game.black_player)
-        }
-
         let new_games = current_games.iter()
             // Don't look at games until they're out of book. If we catch one while it's still playing
             // book moves, we'll get a different hash for this game later.
@@ -50,6 +46,8 @@ fn main() -> ! {
 
 
         for (room, game) in &new_games {
+            println!("[{}] Saw game: {} vs {}", room.code(), &game.white_player, &game.black_player);
+
             // FIXME: If watching for both engines, don't notify twice
             for engine in &config.engines {
                 if game.white_player_is(engine) {
