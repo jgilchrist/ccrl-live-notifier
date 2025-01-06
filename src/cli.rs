@@ -1,27 +1,17 @@
+use std::path::PathBuf;
 use clap::Parser;
-use crate::config::Config;
 use anyhow::Result;
-use crate::ccrllive::CcrlLiveRoom;
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about)]
-struct CliOptions {
+pub struct CliOptions {
     #[clap(long)]
     pub discord_webhook: String,
 
-    #[clap(long, required = true)]
-    pub engines: Vec<String>,
-
-    #[clap(long, required = true)]
-    pub rooms: Vec<String>,
+    #[clap(long, default_value = "config.json")]
+    pub config: PathBuf,
 }
 
-pub fn get_config_from_cli() -> Result<Config> {
-    let cli = CliOptions::parse();
-
-    Ok(Config {
-        webhook_url: cli.discord_webhook,
-        rooms: cli.rooms.iter().map(|r| CcrlLiveRoom::new(r.as_str())).collect(),
-        engines: cli.engines,
-    })
+pub fn get_cli_options() -> Result<CliOptions> {
+    Ok(CliOptions::parse())
 }
