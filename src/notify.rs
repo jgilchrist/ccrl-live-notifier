@@ -26,7 +26,7 @@ impl std::fmt::Display for Color {
 pub fn notify(config: &Config, content: NotifyContent) {
     let client = reqwest::blocking::Client::new();
 
-    let title = format!("{} started a game playing {} vs. {}", content.engine, content.color, content.opponent);
+    let title = format!("{} started a game playing as {} vs. {}", content.engine, content.color, content.opponent);
     let description = format!("Watch live: {}", content.room.url());
 
     let body = json!({
