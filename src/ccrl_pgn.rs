@@ -165,8 +165,8 @@ mod tests {
 
         let pgn_info = get_pgn_info(sample_pgn).unwrap();
 
-        assert_eq!(pgn_info.white_player, "RookieMonster 1.9.9 64-bit");
-        assert_eq!(pgn_info.black_player, "Betsabe_II 2023");
+        assert!(pgn_info.white_player.matches("RookieMonster 1.9.9"));
+        assert!(pgn_info.black_player.matches("Betsabe_II 2023"));
         assert_eq!(pgn_info.date, "2025.01.06");
         assert!(pgn_info.out_of_book())
     }
@@ -179,6 +179,18 @@ mod tests {
 [Black "Betsabe_II 2023"]
 
 1. d4 {(Book)} Nf6 {(Book)} 2. c4 {(Book)}"#;
+
+        let pgn_info = get_pgn_info(sample_pgn).unwrap();
+        assert!(!pgn_info.out_of_book())
+    }
+
+    #[test]
+    fn test_pgn_with_no_moves_is_in_book() {
+        let sample_pgn = r#"[Site "114th Amateur D11"]
+[Date "2025.01.06"]
+[White "RookieMonster 1.9.9 64-bit"]
+[Black "Betsabe_II 2023"]
+"#;
 
         let pgn_info = get_pgn_info(sample_pgn).unwrap();
         assert!(!pgn_info.out_of_book())
