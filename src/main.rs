@@ -62,25 +62,33 @@ fn main() -> Result<()> {
                 if game.white_player_is(engine) {
                     println!("[{}] Saw engine as white: {} - NOTIFYING {} users", room.code(), &engine, notifies.len());
 
-                    notify::notify(&config, NotifyContent {
+                    let notify_result = notify::notify(&config, NotifyContent {
                         engine: game.white_player.clone(),
                         opponent: game.black_player.clone(),
                         color: Color::White,
                         room: room.clone(),
                         mentions: notifies.clone(),
-                    })
+                    });
+
+                    if let Err(e) = notify_result {
+                        println!("Unable to send notify: {:?}", e);
+                    }
                 }
 
                 if game.black_player_is(engine) {
                     println!("[{}] Saw engine as black: {} - NOTIFYING {} users", room.code(), &engine, notifies.len());
 
-                    notify::notify(&config, NotifyContent {
+                    let notify_result = notify::notify(&config, NotifyContent {
                         engine: game.black_player.clone(),
                         opponent: game.white_player.clone(),
                         color: Color::Black,
                         room: room.clone(),
                         mentions: notifies.clone(),
-                    })
+                    });
+
+                    if let Err(e) = notify_result {
+                        println!("Unable to send notify: {:?}", e);
+                    }
                 }
             }
 

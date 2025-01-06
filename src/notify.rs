@@ -2,6 +2,7 @@ use std::collections::HashSet;
 use crate::config::Config;
 use serde_json::json;
 use crate::ccrllive::{CcrlLivePlayer, CcrlLiveRoom};
+use anyhow::Result;
 
 pub struct NotifyContent {
     pub engine: CcrlLivePlayer,
@@ -25,7 +26,7 @@ impl std::fmt::Display for Color {
     }
 }
 
-pub fn notify(config: &Config, content: NotifyContent) {
+pub fn notify(config: &Config, content: NotifyContent) -> Result<()> {
     let client = reqwest::blocking::Client::new();
 
     let title = format!("{} started a game playing as {} vs. {}", content.engine, content.color, content.opponent);
@@ -42,10 +43,10 @@ pub fn notify(config: &Config, content: NotifyContent) {
 
     client.post(&config.webhook_url)
         .json(&body)
-        .send()
-        .expect("Unable to send webhook")
-        .error_for_status()
-        .expect("Unable to send webhook");
+        .send()?
+        .error_for_status()?;
+
+    Ok(())
 }
 
 
