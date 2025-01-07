@@ -1,9 +1,9 @@
-use crate::ccrl_pgn::Pgn;
 use std::collections::HashSet;
 use std::time::Duration;
 use crate::notify::{NotifyContent};
 use anyhow::Result;
 use crate::log::Logger;
+use crate::state::SeenGames;
 
 mod ccrl_pgn;
 mod config;
@@ -22,7 +22,7 @@ fn main() -> Result<()> {
     let config = config::get_config(cli_options).expect("Unable to load config");
     let log = log::get_logger(&config);
 
-    let mut seen_games = HashSet::<Pgn>::new();
+    let mut seen_games = SeenGames::load();
 
     loop {
         let current_games = ccrllive::get_current_games(&config, &log);
@@ -55,7 +55,7 @@ fn main() -> Result<()> {
                 log.error(&format!("Unable to send notify: {:?}", e));
             }
 
-            seen_games.insert(game.clone());
+            seen_games.add(game);
         }
 
         std::thread::sleep(POLL_DELAY);

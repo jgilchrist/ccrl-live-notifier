@@ -2,7 +2,7 @@ use std::fmt::Formatter;
 use std::hash::Hasher;
 use crate::ccrl_pgn::Pgn;
 use anyhow::Result;
-use crate::{ccrl_pgn, ccrllive};
+use crate::{ccrl_pgn};
 use crate::config::Config;
 use crate::log::Logger;
 
