@@ -20,12 +20,17 @@ fn get_panic_message(info: &PanicHookInfo) -> String {
 }
 
 pub trait Logger {
+    fn start(&self);
     fn info(&self, msg: &str);
     fn error(&self, msg: &str);
     fn panic(&self, info: &PanicHookInfo);
 }
 
 impl Logger for Box<dyn Logger + '_> {
+    fn start(&self) {
+        (**self).start()
+    }
+
     fn info(&self, msg: &str) {
         (**self).info(msg)
     }
@@ -42,6 +47,8 @@ impl Logger for Box<dyn Logger + '_> {
 pub struct StdoutLogger;
 
 impl Logger for StdoutLogger {
+    fn start(&self) {}
+
     fn info(&self, msg: &str) {
         println!("{}", msg);
     }
@@ -67,6 +74,10 @@ impl DiscordLogger {
 }
 
 impl Logger for DiscordLogger {
+    fn start(&self) {
+        let _ = discord::send_message(&self.log_webhook, "```───────────────────────────────────────────────────────────────────────────────────────────────────────────```");
+    }
+
     fn info(&self, msg: &str) {
         println!("{}", msg);
 

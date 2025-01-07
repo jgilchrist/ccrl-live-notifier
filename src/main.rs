@@ -29,11 +29,11 @@ fn main() -> Result<()> {
         log.panic(info);
     }));
 
+    log.start();
+
     let mut first_run = true;
 
     let mut seen_games = SeenGames::load().expect("Unable to load state");
-
-    log.info("```───────────────────────────────────────────────────────────────────────────────────────────────────────────```");
 
     loop {
         let current_games = ccrllive::get_current_games(&config, &log);
