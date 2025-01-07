@@ -24,7 +24,7 @@ fn main() -> Result<()> {
 
     let mut seen_games = SeenGames::load().expect("Unable to load state");
 
-    log.info("```────────────────────────────────────────────────────────────────────────────────────────────────────```");
+    log.info("```───────────────────────────────────────────────────────────────────────────────────────────────────────────```");
 
     loop {
         let current_games = ccrllive::get_current_games(&config, &log);
