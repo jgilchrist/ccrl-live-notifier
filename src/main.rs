@@ -25,6 +25,7 @@ fn get_current_games(config: &Config) -> Vec<(CcrlLiveRoom, Pgn)> {
             continue;
         };
 
+        // We may have no PGN for the room if there's no active broadcast
         let Some(pgn) = pgn else {
             continue;
         };
