@@ -68,22 +68,24 @@ fn main() -> Result<()> {
         for (room, game) in &new_games {
             log.info(&format!("[{}] Saw game: {} vs {}", room.code(), &game.white_player, &game.black_player));
 
-            // FIXME: If watching for both engines, don't notify twice
+            let mut mentions = HashSet::new();
+
             for (engine, notifies) in &config.engines {
                 if game.has_player(engine) {
+                    mentions.extend(notifies.iter().cloned());
                     log.info(&format!("[{}] Saw engine: {} - NOTIFYING {} users", room.code(), &engine, notifies.len()));
-
-                    let notify_result = notify::notify(&config, NotifyContent {
-                        white_player: game.white_player.clone(),
-                        black_player: game.black_player.clone(),
-                        room: room.clone(),
-                        mentions: notifies.clone(),
-                    });
-
-                    if let Err(e) = notify_result {
-                        log.error(&format!("Unable to send notify: {:?}", e));
-                    }
                 }
+            }
+
+            let notify_result = notify::notify(&config, NotifyContent {
+                white_player: game.white_player.clone(),
+                black_player: game.black_player.clone(),
+                room: room.clone(),
+                mentions,
+            });
+
+            if let Err(e) = notify_result {
+                log.error(&format!("Unable to send notify: {:?}", e));
             }
 
             seen_games.insert(game.clone());
