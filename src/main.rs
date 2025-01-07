@@ -32,7 +32,7 @@ fn main() -> Result<()> {
         if first_run {
             for (room, game) in &current_games {
                 log.info(&format!(
-                    "`{}` In progress: {} vs {} ({} plies)",
+                    "`{}` In progress: `{}` vs `{}` ({} plies)",
                     room.code(),
                     game.white_player,
                     game.black_player,
@@ -51,7 +51,7 @@ fn main() -> Result<()> {
 
         for (room, game) in &new_games {
             log.info(&format!(
-                "`{}` New game: {} vs {}",
+                "`{}` New game: `{}` vs `{}`",
                 room.code(),
                 &game.white_player,
                 &game.black_player
@@ -63,7 +63,7 @@ fn main() -> Result<()> {
                 if game.has_player(engine) {
                     mentions.extend(notifies.iter().cloned());
                     log.info(&format!(
-                        "`{}` Will notify {} users for engine {}",
+                        "`{}` Will notify {} users for engine `{}`",
                         room.code(),
                         notifies.len(),
                         &engine,
