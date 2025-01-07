@@ -27,7 +27,7 @@ pub fn get_config(cli_options: CliOptions) -> Result<Config> {
 
     for (user, engines) in &config_file.users {
         for engine in engines {
-            engines_to_users.entry(engine.clone()).or_insert(HashSet::new()).insert(user.clone());
+            engines_to_users.entry(engine.clone()).or_default().insert(user.clone());
         }
     }
 
