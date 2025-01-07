@@ -6,21 +6,8 @@ pub fn send_message(webhook_url: &str, message: &str) -> Result<()> {
         webhook_url,
         json!({
             "username": "ccrl-live-notifier",
-            "content": message
-        }),
-    )
-}
-
-pub fn send_embed_message(webhook_url: &str, title: &str, description: &str) -> Result<()> {
-    call_webhook(
-        webhook_url,
-        json!({
-            "username": "ccrl-live-notifier",
             "allowed_mentions": { "parse": ["users"] },
-            "embeds": [{
-                "title": title,
-                "description": description,
-            }]
+            "content": message
         }),
     )
 }

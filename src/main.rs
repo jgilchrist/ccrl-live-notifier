@@ -59,13 +59,6 @@ fn main() -> Result<()> {
             .collect::<Vec<_>>();
 
         for (room, game) in &new_games {
-            log.info(&format!(
-                "`{}` New game: `{}` vs `{}`",
-                room.code(),
-                &game.white_player,
-                &game.black_player
-            ));
-
             let mut mentions = HashSet::new();
 
             for (engine, notifies) in &config.engines {
@@ -80,20 +73,18 @@ fn main() -> Result<()> {
                 }
             }
 
-            if !mentions.is_empty() {
-                let notify_result = notify::notify(
-                    &config,
-                    NotifyContent {
-                        white_player: game.white_player.clone(),
-                        black_player: game.black_player.clone(),
-                        room: room.clone(),
-                        mentions,
-                    },
-                );
+            let notify_result = notify::notify(
+                &config,
+                NotifyContent {
+                    white_player: game.white_player.clone(),
+                    black_player: game.black_player.clone(),
+                    room: room.clone(),
+                    mentions,
+                },
+            );
 
-                if let Err(e) = notify_result {
-                    log.error(&format!("Unable to send notify: {:?}", e));
-                }
+            if let Err(e) = notify_result {
+                log.error(&format!("Unable to send notify: {:?}", e));
             }
 
             let write_state_result = seen_games.add(game);

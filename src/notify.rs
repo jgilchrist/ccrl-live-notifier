@@ -12,21 +12,28 @@ pub struct NotifyContent {
 }
 
 pub fn notify(config: &Config, content: NotifyContent) -> Result<()> {
-    discord::send_embed_message(
-        &config.notify_webhook,
-        &format!(
-            ":white_medium_square: {} vs. :black_medium_square: {} starting",
-            content.white_player, content.black_player
-        ),
-        &format!(
-            "Watch live: {}\ncc. {}",
-            content.room.url(),
-            content
+    let mentions_str = if !content.mentions.is_empty() {
+        "   cc. ".to_string()
+            + &content
                 .mentions
                 .iter()
                 .map(|m| format!("<@!{}>", m))
                 .collect::<Vec<_>>()
                 .join(" ")
+                .as_str()
+    } else {
+        String::new()
+    };
+
+    discord::send_message(
+        &config.notify_webhook,
+        &format!(
+            "[`{}`]({}) :white_medium_square: `{}` vs. :black_medium_square: `{}`{}",
+            content.room.code(),
+            content.room.url(),
+            content.white_player,
+            content.black_player,
+            mentions_str
         ),
     )
 }
