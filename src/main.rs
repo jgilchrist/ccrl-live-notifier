@@ -20,11 +20,28 @@ fn main() -> Result<()> {
     let cli_options = cli::get_cli_options().expect("Unable to parse CLI");
     let config = config::get_config(cli_options).expect("Unable to load config");
     let log = log::get_logger(&config);
+    let mut first_run = true;
 
     let mut seen_games = SeenGames::load().expect("Unable to load state");
 
+    log.info("Initialising");
+
     loop {
         let current_games = ccrllive::get_current_games(&config, &log);
+
+        if first_run {
+            for (room, game) in &current_games {
+                log.info(&format!(
+                    "[{}] In progress: {} vs {} ({} plies)",
+                    room.code(),
+                    game.white_player,
+                    game.black_player,
+                    game.moves.len()
+                ))
+            }
+
+            first_run = false;
+        }
 
         let new_games = current_games
             .iter()
