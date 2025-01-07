@@ -28,7 +28,7 @@ pub fn notify(config: &Config, content: NotifyContent) -> Result<()> {
     discord::send_message(
         &config.notify_webhook,
         &format!(
-            "[`{}`]({}) :white_medium_square: `{}` vs. :black_medium_square: `{}`{}",
+            "[`{}`]({}) `{}` vs. `{}`{}",
             content.room.code(),
             content.room.url(),
             content.white_player,
