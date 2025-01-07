@@ -21,7 +21,7 @@ fn main() -> Result<()> {
     let config = config::get_config(cli_options).expect("Unable to load config");
     let log = log::get_logger(&config);
 
-    let mut seen_games = SeenGames::load();
+    let mut seen_games = SeenGames::load().expect("Unable to load state");
 
     loop {
         let current_games = ccrllive::get_current_games(&config, &log);
@@ -68,7 +68,11 @@ fn main() -> Result<()> {
                 log.error(&format!("Unable to send notify: {:?}", e));
             }
 
-            seen_games.add(game);
+            let write_state_result = seen_games.add(game);
+
+            if let Err(e) = write_state_result {
+                log.error(&format!("Unable to write seen game to file: {:?}", e));
+            }
         }
 
         std::thread::sleep(POLL_DELAY);

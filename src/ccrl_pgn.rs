@@ -23,6 +23,12 @@ impl Pgn {
         self.moves.iter().any(|(_, in_book)| !in_book)
     }
 
+    pub fn as_hash(&self) -> u64 {
+        let mut hasher = std::hash::DefaultHasher::new();
+        self.hash(&mut hasher);
+        hasher.finish()
+    }
+
     pub fn has_player(&self, player: &str) -> bool {
         self.white_player_is(player) || self.black_player_is(player)
     }
@@ -54,15 +60,9 @@ impl Hash for Pgn {
     }
 }
 
-fn hash(v: impl Hash) -> u64 {
-    let mut hasher = std::hash::DefaultHasher::new();
-    v.hash(&mut hasher);
-    hasher.finish()
-}
-
 impl PartialEq<Self> for Pgn {
     fn eq(&self, other: &Self) -> bool {
-        hash(self) == hash(other)
+        self.as_hash() == other.as_hash()
     }
 }
 
