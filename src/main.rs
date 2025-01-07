@@ -15,15 +15,17 @@ mod ccrllive;
 mod log;
 mod discord;
 
-fn get_current_games(config: &Config) -> Vec<(CcrlLiveRoom, Pgn)> {
+fn get_current_games(config: &Config, log: &dyn Logger) -> Vec<(CcrlLiveRoom, Pgn)> {
     let mut pgns: Vec<(CcrlLiveRoom, Pgn)> = vec![];
 
     for room in &config.rooms {
-        let Ok(pgn) = ccrllive::get_current_pgn(room) else {
-            // TODO: Log error
+        let pgn_fetch_result = ccrllive::get_current_pgn(room);
 
-            continue;
-        };
+        if let Err(ref e) = pgn_fetch_result {
+            log.error(&format!("Unable to fetch PGN for room {}: {:?}", room.code(), e));
+        }
+
+        let pgn = pgn_fetch_result.unwrap();
 
         // We may have no PGN for the room if there's no active broadcast
         let Some(pgn) = pgn else {
@@ -59,7 +61,7 @@ fn main() -> Result<()> {
     let mut seen_games = HashSet::<Pgn>::new();
 
     loop {
-        let current_games = get_current_games(&config);
+        let current_games = get_current_games(&config, &log);
 
         let new_games = current_games.iter()
             // Filter out games we've already seen.
