@@ -55,6 +55,9 @@ impl Logger for DiscordLogger {
     fn error(&self, msg: &str) {
         eprintln!("{}", msg);
 
-        let _ = discord::send_message(&self.log_webhook, &(":red_circle:".to_string() + msg));
+        let _ = discord::send_message(
+            &self.log_webhook,
+            &("<@!106120945231466496> :red_circle:".to_string() + msg),
+        );
     }
 }
