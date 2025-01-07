@@ -6,7 +6,8 @@ use anyhow::Result;
 use crate::ccrllive::CcrlLiveRoom;
 
 pub struct Config {
-    pub webhook_url: String,
+    pub notify_webhook: String,
+    pub log_webhook: Option<String>,
 
     pub rooms: Vec<CcrlLiveRoom>,
     pub engines: HashMap<String, HashSet<String>>,
@@ -31,7 +32,8 @@ pub fn get_config(cli_options: CliOptions) -> Result<Config> {
     }
 
     Ok(Config {
-        webhook_url: cli_options.discord_webhook.clone(),
+        notify_webhook: cli_options.notify_webhook.clone(),
+        log_webhook: cli_options.log_webhook.clone(),
         rooms: config_file.rooms.iter().map(|r| CcrlLiveRoom::new(r.as_str())).collect(),
         engines: engines_to_users,
     })

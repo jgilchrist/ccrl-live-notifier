@@ -6,7 +6,10 @@ use anyhow::Result;
 #[clap(author, version, about)]
 pub struct CliOptions {
     #[clap(long)]
-    pub discord_webhook: String,
+    pub notify_webhook: String,
+
+    #[clap(long)]
+    pub log_webhook: Option<String>,
 
     #[clap(long, default_value = "config.json")]
     pub config: PathBuf,

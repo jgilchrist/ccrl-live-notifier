@@ -5,12 +5,15 @@ use crate::ccrllive::CcrlLiveRoom;
 use crate::config::Config;
 use crate::notify::{Color, NotifyContent};
 use anyhow::Result;
+use crate::log::Logger;
 
 mod ccrl_pgn;
 mod config;
 mod notify;
 mod cli;
 mod ccrllive;
+mod log;
+mod discord;
 
 fn get_current_games(config: &Config) -> Vec<(CcrlLiveRoom, Pgn)> {
     let mut pgns: Vec<(CcrlLiveRoom, Pgn)> = vec![];
@@ -40,9 +43,17 @@ fn get_current_games(config: &Config) -> Vec<(CcrlLiveRoom, Pgn)> {
 
 const POLL_DELAY: Duration = Duration::from_secs(30);
 
+fn get_logger(config: &Config) -> Box<dyn Logger> {
+    match config.log_webhook {
+        None => Box::new(log::StdoutLogger),
+        Some(ref hook) => Box::new(log::DiscordLogger::new(hook.clone())),
+    }
+}
+
 fn main() -> Result<()> {
     let cli_options = cli::get_cli_options().expect("Unable to parse CLI");
     let config = config::get_config(cli_options).expect("Unable to load config");
+    let log = get_logger(&config);
 
     let mut seen_games = HashSet::<Pgn>::new();
 
@@ -55,12 +66,12 @@ fn main() -> Result<()> {
             .collect::<Vec<_>>();
 
         for (room, game) in &new_games {
-            println!("[{}] Saw game: {} vs {}", room.code(), &game.white_player, &game.black_player);
+            log.info(&format!("[{}] Saw game: {} vs {}", room.code(), &game.white_player, &game.black_player));
 
             // FIXME: If watching for both engines, don't notify twice
             for (engine, notifies) in &config.engines {
                 if game.white_player_is(engine) {
-                    println!("[{}] Saw engine as white: {} - NOTIFYING {} users", room.code(), &engine, notifies.len());
+                    log.info(&format!("[{}] Saw engine as white: {} - NOTIFYING {} users", room.code(), &engine, notifies.len()));
 
                     let notify_result = notify::notify(&config, NotifyContent {
                         engine: game.white_player.clone(),
@@ -71,12 +82,12 @@ fn main() -> Result<()> {
                     });
 
                     if let Err(e) = notify_result {
-                        println!("Unable to send notify: {:?}", e);
+                        log.error(&format!("Unable to send notify: {:?}", e));
                     }
                 }
 
                 if game.black_player_is(engine) {
-                    println!("[{}] Saw engine as black: {} - NOTIFYING {} users", room.code(), &engine, notifies.len());
+                    log.info(&format!("[{}] Saw engine as black: {} - NOTIFYING {} users", room.code(), &engine, notifies.len()));
 
                     let notify_result = notify::notify(&config, NotifyContent {
                         engine: game.black_player.clone(),
@@ -87,7 +98,7 @@ fn main() -> Result<()> {
                     });
 
                     if let Err(e) = notify_result {
-                        println!("Unable to send notify: {:?}", e);
+                        log.error(&format!("Unable to send notify: {:?}", e));
                     }
                 }
             }
