@@ -5,6 +5,16 @@ pub trait Logger {
     fn error(&self, msg: &str);
 }
 
+impl Logger for Box<dyn Logger + '_> {
+    fn info(&self, msg: &str) {
+        (**self).info(msg)
+    }
+
+    fn error(&self, msg: &str) {
+        (**self).error(msg)
+    }
+}
+
 pub struct StdoutLogger;
 
 impl Logger for StdoutLogger {
