@@ -1,4 +1,12 @@
-use crate::discord;
+use crate::config::Config;
+use crate::{discord, log};
+
+pub fn get_logger(config: &Config) -> Box<dyn Logger> {
+    match config.log_webhook {
+        None => Box::new(log::StdoutLogger),
+        Some(ref hook) => Box::new(log::DiscordLogger::new(hook.clone())),
+    }
+}
 
 pub trait Logger {
     fn info(&self, msg: &str);

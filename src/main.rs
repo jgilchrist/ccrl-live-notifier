@@ -1,8 +1,6 @@
 use crate::ccrl_pgn::Pgn;
 use std::collections::HashSet;
 use std::time::Duration;
-use crate::ccrllive::CcrlLiveRoom;
-use crate::config::Config;
 use crate::notify::{NotifyContent};
 use anyhow::Result;
 use crate::log::Logger;
@@ -14,54 +12,20 @@ mod cli;
 mod ccrllive;
 mod log;
 mod discord;
+mod state;
 
-fn get_current_games(config: &Config, log: &dyn Logger) -> Vec<(CcrlLiveRoom, Pgn)> {
-    let mut pgns: Vec<(CcrlLiveRoom, Pgn)> = vec![];
-
-    for room in &config.rooms {
-        let pgn_fetch_result = ccrllive::get_current_pgn(room);
-
-        if let Err(ref e) = pgn_fetch_result {
-            log.error(&format!("Unable to fetch PGN for room {}: {:?}", room.code(), e));
-        }
-
-        let pgn = pgn_fetch_result.unwrap();
-
-        // We may have no PGN for the room if there's no active broadcast
-        let Some(pgn) = pgn else {
-            continue;
-        };
-
-        // Don't consider games which are still in book to have started since we need all the book
-        // moves so we can hash the game correctly
-        if !pgn.out_of_book() {
-            continue;
-        }
-
-        pgns.push((room.clone(), pgn));
-    }
-
-    pgns
-}
 
 const POLL_DELAY: Duration = Duration::from_secs(30);
-
-fn get_logger(config: &Config) -> Box<dyn Logger> {
-    match config.log_webhook {
-        None => Box::new(log::StdoutLogger),
-        Some(ref hook) => Box::new(log::DiscordLogger::new(hook.clone())),
-    }
-}
 
 fn main() -> Result<()> {
     let cli_options = cli::get_cli_options().expect("Unable to parse CLI");
     let config = config::get_config(cli_options).expect("Unable to load config");
-    let log = get_logger(&config);
+    let log = log::get_logger(&config);
 
     let mut seen_games = HashSet::<Pgn>::new();
 
     loop {
-        let current_games = get_current_games(&config, &log);
+        let current_games = ccrllive::get_current_games(&config, &log);
 
         let new_games = current_games.iter()
             // Filter out games we've already seen.

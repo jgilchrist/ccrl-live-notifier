@@ -2,7 +2,9 @@ use std::fmt::Formatter;
 use std::hash::Hasher;
 use crate::ccrl_pgn::Pgn;
 use anyhow::Result;
-use crate::ccrl_pgn;
+use crate::{ccrl_pgn, ccrllive};
+use crate::config::Config;
+use crate::log::Logger;
 
 #[derive(Debug, Clone)]
 pub struct CcrlLiveRoom {
@@ -63,7 +65,7 @@ impl std::hash::Hash for CcrlLivePlayer {
     }
 }
 
-pub fn get_current_pgn(room: &CcrlLiveRoom) -> Result<Option<Pgn>> {
+fn get_current_pgn(room: &CcrlLiveRoom) -> Result<Option<Pgn>> {
     let client = reqwest::blocking::Client::builder()
         .redirect(reqwest::redirect::Policy::none())
         .build()?;
@@ -79,4 +81,33 @@ pub fn get_current_pgn(room: &CcrlLiveRoom) -> Result<Option<Pgn>> {
     let pgn_info = ccrl_pgn::get_pgn_info(&pgn_content)?;
 
     Ok(Some(pgn_info))
+}
+
+pub fn get_current_games(config: &Config, log: &dyn Logger) -> Vec<(CcrlLiveRoom, Pgn)> {
+    let mut pgns: Vec<(CcrlLiveRoom, Pgn)> = vec![];
+
+    for room in &config.rooms {
+        let pgn_fetch_result = get_current_pgn(room);
+
+        if let Err(ref e) = pgn_fetch_result {
+            log.error(&format!("Unable to fetch PGN for room {}: {:?}", room.code(), e));
+        }
+
+        let pgn = pgn_fetch_result.unwrap();
+
+        // We may have no PGN for the room if there's no active broadcast
+        let Some(pgn) = pgn else {
+            continue;
+        };
+
+        // Don't consider games which are still in book to have started since we need all the book
+        // moves so we can hash the game correctly
+        if !pgn.out_of_book() {
+            continue;
+        }
+
+        pgns.push((room.clone(), pgn));
+    }
+
+    pgns
 }
