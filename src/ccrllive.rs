@@ -1,10 +1,10 @@
-use std::fmt::Formatter;
-use std::hash::Hasher;
+use crate::ccrl_pgn;
 use crate::ccrl_pgn::Pgn;
-use anyhow::Result;
-use crate::{ccrl_pgn};
 use crate::config::Config;
 use crate::log::Logger;
+use anyhow::Result;
+use std::fmt::Formatter;
+use std::hash::Hasher;
 
 #[derive(Debug, Clone)]
 pub struct CcrlLiveRoom {
@@ -44,7 +44,11 @@ impl CcrlLivePlayer {
     }
 
     pub fn matches(&self, search: &str) -> bool {
-        if self.name.to_ascii_lowercase().contains(&search.to_ascii_lowercase()) {
+        if self
+            .name
+            .to_ascii_lowercase()
+            .contains(&search.to_ascii_lowercase())
+        {
             return true;
         }
 
@@ -90,7 +94,11 @@ pub fn get_current_games(config: &Config, log: &dyn Logger) -> Vec<(CcrlLiveRoom
         let pgn_fetch_result = get_current_pgn(room);
 
         if let Err(ref e) = pgn_fetch_result {
-            log.error(&format!("Unable to fetch PGN for room {}: {:?}", room.code(), e));
+            log.error(&format!(
+                "Unable to fetch PGN for room {}: {:?}",
+                room.code(),
+                e
+            ));
         }
 
         let pgn = pgn_fetch_result.unwrap();

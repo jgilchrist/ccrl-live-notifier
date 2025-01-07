@@ -1,5 +1,5 @@
-use std::collections::HashSet;
 use crate::ccrl_pgn::Pgn;
+use std::collections::HashSet;
 
 pub struct SeenGames(HashSet<Pgn>);
 

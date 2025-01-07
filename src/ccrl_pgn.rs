@@ -1,7 +1,7 @@
-use std::hash::{Hash, Hasher};
-use pgn_reader::{BufferedReader, RawComment, RawHeader, SanPlus, Skip, Visitor};
+use crate::ccrllive::CcrlLivePlayer;
 use anyhow::{bail, Result};
-use crate::ccrllive::{CcrlLivePlayer};
+use pgn_reader::{BufferedReader, RawComment, RawHeader, SanPlus, Skip, Visitor};
+use std::hash::{Hash, Hasher};
 
 const WHITE_HEADER_KEY: &str = "White";
 const BLACK_HEADER_KEY: &str = "Black";

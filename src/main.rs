@@ -1,19 +1,18 @@
+use crate::log::Logger;
+use crate::notify::NotifyContent;
+use crate::state::SeenGames;
+use anyhow::Result;
 use std::collections::HashSet;
 use std::time::Duration;
-use crate::notify::{NotifyContent};
-use anyhow::Result;
-use crate::log::Logger;
-use crate::state::SeenGames;
 
 mod ccrl_pgn;
-mod config;
-mod notify;
-mod cli;
 mod ccrllive;
-mod log;
+mod cli;
+mod config;
 mod discord;
+mod log;
+mod notify;
 mod state;
-
 
 const POLL_DELAY: Duration = Duration::from_secs(30);
 
@@ -27,29 +26,43 @@ fn main() -> Result<()> {
     loop {
         let current_games = ccrllive::get_current_games(&config, &log);
 
-        let new_games = current_games.iter()
+        let new_games = current_games
+            .iter()
             // Filter out games we've already seen.
             .filter(|(_, game)| !seen_games.contains(game))
             .collect::<Vec<_>>();
 
         for (room, game) in &new_games {
-            log.info(&format!("[{}] Saw game: {} vs {}", room.code(), &game.white_player, &game.black_player));
+            log.info(&format!(
+                "[{}] Saw game: {} vs {}",
+                room.code(),
+                &game.white_player,
+                &game.black_player
+            ));
 
             let mut mentions = HashSet::new();
 
             for (engine, notifies) in &config.engines {
                 if game.has_player(engine) {
                     mentions.extend(notifies.iter().cloned());
-                    log.info(&format!("[{}] Saw engine: {} - NOTIFYING {} users", room.code(), &engine, notifies.len()));
+                    log.info(&format!(
+                        "[{}] Saw engine: {} - NOTIFYING {} users",
+                        room.code(),
+                        &engine,
+                        notifies.len()
+                    ));
                 }
             }
 
-            let notify_result = notify::notify(&config, NotifyContent {
-                white_player: game.white_player.clone(),
-                black_player: game.black_player.clone(),
-                room: room.clone(),
-                mentions,
-            });
+            let notify_result = notify::notify(
+                &config,
+                NotifyContent {
+                    white_player: game.white_player.clone(),
+                    black_player: game.black_player.clone(),
+                    room: room.clone(),
+                    mentions,
+                },
+            );
 
             if let Err(e) = notify_result {
                 log.error(&format!("Unable to send notify: {:?}", e));

@@ -1,6 +1,6 @@
-use std::path::PathBuf;
-use clap::Parser;
 use anyhow::Result;
+use clap::Parser;
+use std::path::PathBuf;
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about)]

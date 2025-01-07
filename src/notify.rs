@@ -1,8 +1,8 @@
-use std::collections::HashSet;
-use crate::config::Config;
 use crate::ccrllive::{CcrlLivePlayer, CcrlLiveRoom};
-use anyhow::Result;
+use crate::config::Config;
 use crate::discord;
+use anyhow::Result;
+use std::collections::HashSet;
 
 pub struct NotifyContent {
     pub white_player: CcrlLivePlayer,
@@ -14,9 +14,19 @@ pub struct NotifyContent {
 pub fn notify(config: &Config, content: NotifyContent) -> Result<()> {
     discord::send_embed_message(
         &config.notify_webhook,
-        &format!(":white_medium_square: {} vs. :black_medium_square: {} starting", content.white_player, content.black_player),
-        &format!("Watch live: {}\ncc. {}", content.room.url(), content.mentions.iter().map(|m| format!("<@!{}>", m)).collect::<Vec<_>>().join(" ")),
+        &format!(
+            ":white_medium_square: {} vs. :black_medium_square: {} starting",
+            content.white_player, content.black_player
+        ),
+        &format!(
+            "Watch live: {}\ncc. {}",
+            content.room.url(),
+            content
+                .mentions
+                .iter()
+                .map(|m| format!("<@!{}>", m))
+                .collect::<Vec<_>>()
+                .join(" ")
+        ),
     )
 }
-
-
