@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use std::time::Duration;
 use crate::ccrllive::CcrlLiveRoom;
 use crate::config::Config;
-use crate::notify::{Color, NotifyContent};
+use crate::notify::{NotifyContent};
 use anyhow::Result;
 use crate::log::Logger;
 
@@ -70,29 +70,12 @@ fn main() -> Result<()> {
 
             // FIXME: If watching for both engines, don't notify twice
             for (engine, notifies) in &config.engines {
-                if game.white_player_is(engine) {
-                    log.info(&format!("[{}] Saw engine as white: {} - NOTIFYING {} users", room.code(), &engine, notifies.len()));
+                if game.has_player(engine) {
+                    log.info(&format!("[{}] Saw engine: {} - NOTIFYING {} users", room.code(), &engine, notifies.len()));
 
                     let notify_result = notify::notify(&config, NotifyContent {
-                        engine: game.white_player.clone(),
-                        opponent: game.black_player.clone(),
-                        color: Color::White,
-                        room: room.clone(),
-                        mentions: notifies.clone(),
-                    });
-
-                    if let Err(e) = notify_result {
-                        log.error(&format!("Unable to send notify: {:?}", e));
-                    }
-                }
-
-                if game.black_player_is(engine) {
-                    log.info(&format!("[{}] Saw engine as black: {} - NOTIFYING {} users", room.code(), &engine, notifies.len()));
-
-                    let notify_result = notify::notify(&config, NotifyContent {
-                        engine: game.black_player.clone(),
-                        opponent: game.white_player.clone(),
-                        color: Color::Black,
+                        white_player: game.white_player.clone(),
+                        black_player: game.black_player.clone(),
                         room: room.clone(),
                         mentions: notifies.clone(),
                     });

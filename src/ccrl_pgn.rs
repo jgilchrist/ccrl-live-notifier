@@ -23,11 +23,15 @@ impl Pgn {
         self.moves.iter().any(|(_, in_book)| !in_book)
     }
 
-    pub fn white_player_is(&self, player: &str) -> bool {
+    pub fn has_player(&self, player: &str) -> bool {
+        self.white_player_is(player) || self.black_player_is(player)
+    }
+
+    fn white_player_is(&self, player: &str) -> bool {
         self.white_player.matches(player)
     }
 
-    pub fn black_player_is(&self, player: &str) -> bool {
+    fn black_player_is(&self, player: &str) -> bool {
         self.black_player.matches(player)
     }
 }
