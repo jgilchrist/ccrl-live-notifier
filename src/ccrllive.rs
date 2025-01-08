@@ -99,6 +99,8 @@ pub fn get_current_games(config: &Config, log: &dyn Logger) -> Vec<(CcrlLiveRoom
                 room.code(),
                 e
             ));
+
+            continue;
         }
 
         let pgn = pgn_fetch_result.unwrap();
