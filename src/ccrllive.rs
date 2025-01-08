@@ -93,7 +93,9 @@ pub fn get_current_games(config: &Config, log: &dyn Logger) -> Vec<(CcrlLiveRoom
     for room in &config.rooms {
         let pgn_fetch_result = get_current_pgn(room);
 
-        if let Err(ref e) = pgn_fetch_result {
+        let Ok(pgn) = pgn_fetch_result else {
+            let e = pgn_fetch_result.unwrap_err();
+
             log.error(&format!(
                 "Unable to fetch PGN for room {}: {:?}",
                 room.code(),
@@ -101,9 +103,7 @@ pub fn get_current_games(config: &Config, log: &dyn Logger) -> Vec<(CcrlLiveRoom
             ));
 
             continue;
-        }
-
-        let pgn = pgn_fetch_result.unwrap();
+        };
 
         // We may have no PGN for the room if there's no active broadcast
         let Some(pgn) = pgn else {
