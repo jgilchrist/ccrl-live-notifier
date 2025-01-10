@@ -1,10 +1,11 @@
 use crate::ccrl_pgn;
 use crate::ccrl_pgn::Pgn;
-use crate::config::Config;
 use crate::log::Logger;
 use anyhow::Result;
 use std::fmt::Formatter;
 use std::hash::Hasher;
+
+const CCRL_LIVE_ROOMS_URL: &str = "https://ccrl.live/broadcasts";
 
 #[derive(Debug, Clone)]
 pub struct CcrlLiveRoom {
@@ -69,6 +70,18 @@ impl std::hash::Hash for CcrlLivePlayer {
     }
 }
 
+fn get_active_broadcasts() -> Result<Vec<CcrlLiveRoom>> {
+    let response = reqwest::blocking::get(CCRL_LIVE_ROOMS_URL)?.error_for_status()?;
+
+    let rooms = response
+        .json::<Vec<u64>>()?
+        .iter()
+        .map(|r| CcrlLiveRoom::new(&r.to_string()))
+        .collect();
+
+    Ok(rooms)
+}
+
 fn get_current_pgn(room: &CcrlLiveRoom) -> Result<Option<Pgn>> {
     let client = reqwest::blocking::Client::builder()
         .redirect(reqwest::redirect::Policy::none())
@@ -87,10 +100,12 @@ fn get_current_pgn(room: &CcrlLiveRoom) -> Result<Option<Pgn>> {
     Ok(Some(pgn_info))
 }
 
-pub fn get_current_games(config: &Config, log: &dyn Logger) -> Vec<(CcrlLiveRoom, Pgn)> {
+pub fn get_current_games(log: &dyn Logger) -> Result<Vec<(CcrlLiveRoom, Pgn)>> {
     let mut pgns: Vec<(CcrlLiveRoom, Pgn)> = vec![];
 
-    for room in &config.rooms {
+    let broadcasts = get_active_broadcasts()?;
+
+    for room in &broadcasts {
         let pgn_fetch_result = get_current_pgn(room);
 
         let Ok(pgn) = pgn_fetch_result else {
@@ -119,5 +134,5 @@ pub fn get_current_games(config: &Config, log: &dyn Logger) -> Vec<(CcrlLiveRoom
         pgns.push((room.clone(), pgn));
     }
 
-    pgns
+    Ok(pgns)
 }

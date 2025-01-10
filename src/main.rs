@@ -36,7 +36,16 @@ fn main() -> Result<()> {
     let mut seen_games = SeenGames::load().expect("Unable to load state");
 
     loop {
-        let current_games = ccrllive::get_current_games(&config, &log);
+        let current_games_result = ccrllive::get_current_games(&log);
+
+        let Ok(current_games) = current_games_result else {
+            let e = current_games_result.unwrap_err();
+
+            log.error(&format!("Unable to send notify: {:?}", e));
+
+            std::thread::sleep(POLL_DELAY);
+            continue;
+        };
 
         if first_run {
             for (room, game) in &current_games {
