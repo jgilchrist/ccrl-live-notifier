@@ -111,7 +111,7 @@ pub fn get_current_games(log: &dyn Logger) -> Result<Vec<(CcrlLiveRoom, Pgn)>> {
         let Ok(pgn) = pgn_fetch_result else {
             let e = pgn_fetch_result.unwrap_err();
 
-            log.error(&format!(
+            log.warning(&format!(
                 "Unable to fetch PGN for room {}: {:?}",
                 room.code(),
                 e

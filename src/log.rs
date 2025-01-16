@@ -22,6 +22,7 @@ fn get_panic_message(info: &PanicHookInfo) -> String {
 pub trait Logger {
     fn start(&self);
     fn info(&self, msg: &str);
+    fn warning(&self, msg: &str);
     fn error(&self, msg: &str);
     fn panic(&self, info: &PanicHookInfo);
 }
@@ -33,6 +34,10 @@ impl Logger for Box<dyn Logger + '_> {
 
     fn info(&self, msg: &str) {
         (**self).info(msg)
+    }
+
+    fn warning(&self, msg: &str) {
+        (**self).warning(msg)
     }
 
     fn error(&self, msg: &str) {
@@ -51,6 +56,10 @@ impl Logger for StdoutLogger {
 
     fn info(&self, msg: &str) {
         println!("{}", msg);
+    }
+
+    fn warning(&self, msg: &str) {
+        eprintln!("{}", msg);
     }
 
     fn error(&self, msg: &str) {
@@ -80,6 +89,12 @@ impl Logger for DiscordLogger {
 
     fn info(&self, msg: &str) {
         println!("{}", msg);
+
+        let _ = discord::send_message(&self.log_webhook, msg);
+    }
+
+    fn warning(&self, msg: &str) {
+        println!(":yellow_circle: {}", msg);
 
         let _ = discord::send_message(&self.log_webhook, msg);
     }
