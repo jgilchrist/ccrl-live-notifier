@@ -98,10 +98,10 @@ fn main() -> Result<()> {
                 }
             } else {
                 log.info(&format!(
-                    "Saw {} vs {} in room {}",
+                    "`{}` - `{}` vs `{}`",
+                    room.code(),
                     game.white_player,
                     game.black_player,
-                    room.code()
                 ));
             }
 
