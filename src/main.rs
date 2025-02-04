@@ -96,12 +96,6 @@ fn main() -> Result<()> {
                 if let Err(e) = notify_result {
                     log.error(&format!("Unable to send notify: {:?}", e));
                 }
-
-                let write_state_result = seen_games.add(game);
-
-                if let Err(e) = write_state_result {
-                    log.error(&format!("Unable to write seen game to file: {:?}", e));
-                }
             } else {
                 log.info(&format!(
                     "Saw {} vs {} in room {}",
@@ -109,6 +103,12 @@ fn main() -> Result<()> {
                     game.black_player,
                     room.code()
                 ));
+            }
+
+            let write_state_result = seen_games.add(game);
+
+            if let Err(e) = write_state_result {
+                log.error(&format!("Unable to write seen game to file: {:?}", e));
             }
         }
 
