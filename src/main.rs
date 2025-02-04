@@ -82,24 +82,26 @@ fn main() -> Result<()> {
                 }
             }
 
-            let notify_result = notify::notify(
-                &config,
-                NotifyContent {
-                    white_player: game.white_player.clone(),
-                    black_player: game.black_player.clone(),
-                    room: room.clone(),
-                    mentions,
-                },
-            );
+            if !mentions.is_empty() {
+                let notify_result = notify::notify(
+                    &config,
+                    NotifyContent {
+                        white_player: game.white_player.clone(),
+                        black_player: game.black_player.clone(),
+                        room: room.clone(),
+                        mentions,
+                    },
+                );
 
-            if let Err(e) = notify_result {
-                log.error(&format!("Unable to send notify: {:?}", e));
-            }
+                if let Err(e) = notify_result {
+                    log.error(&format!("Unable to send notify: {:?}", e));
+                }
 
-            let write_state_result = seen_games.add(game);
+                let write_state_result = seen_games.add(game);
 
-            if let Err(e) = write_state_result {
-                log.error(&format!("Unable to write seen game to file: {:?}", e));
+                if let Err(e) = write_state_result {
+                    log.error(&format!("Unable to write seen game to file: {:?}", e));
+                }
             }
         }
 
