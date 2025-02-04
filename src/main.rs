@@ -102,6 +102,13 @@ fn main() -> Result<()> {
                 if let Err(e) = write_state_result {
                     log.error(&format!("Unable to write seen game to file: {:?}", e));
                 }
+            } else {
+                log.info(&format!(
+                    "Saw {} vs {} in room {}",
+                    game.white_player,
+                    game.black_player,
+                    room.code()
+                ));
             }
         }
 
