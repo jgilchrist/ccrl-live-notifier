@@ -53,7 +53,10 @@ fn main() -> Result<()> {
         } else {
             let new_notify_config = new_notify_config?;
             if notify_config != new_notify_config {
-                log.info(&format!("Config update loaded: {:?}", new_notify_config));
+                log.info(&format!(
+                    "<@!106120945231466496> Config update loaded: {:?}",
+                    new_notify_config
+                ));
                 notify_config = new_notify_config;
             }
         }
