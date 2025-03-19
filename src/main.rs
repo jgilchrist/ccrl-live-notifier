@@ -44,6 +44,8 @@ fn main() -> Result<()> {
     let mut seen_games = SeenGames::load().expect("Unable to load state");
     let mut notify_config = config::get_notify_config(&config).expect("Unable to load config");
 
+    log.info(&format!("Loaded config: {:?}", notify_config));
+
     loop {
         let new_notify_config = config::get_notify_config(&config);
         if let Err(e) = new_notify_config {
