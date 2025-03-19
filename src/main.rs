@@ -1,7 +1,9 @@
+use crate::config::NotifyConfig;
 use crate::log::Logger;
 use crate::notify::NotifyContent;
 use crate::state::SeenGames;
 use anyhow::Result;
+use std::cmp::PartialEq;
 use std::collections::HashSet;
 use std::time::Duration;
 
@@ -15,6 +17,12 @@ mod notify;
 mod state;
 
 const POLL_DELAY: Duration = Duration::from_secs(30);
+
+impl PartialEq for NotifyConfig {
+    fn eq(&self, other: &Self) -> bool {
+        self.engines == other.engines
+    }
+}
 
 fn main() -> Result<()> {
     let cli_options = cli::get_cli_options().expect("Unable to parse CLI");
@@ -34,8 +42,20 @@ fn main() -> Result<()> {
     let mut first_run = true;
 
     let mut seen_games = SeenGames::load().expect("Unable to load state");
+    let mut notify_config = config::get_notify_config(&config).expect("Unable to load config");
 
     loop {
+        let new_notify_config = config::get_notify_config(&config);
+        if let Err(e) = new_notify_config {
+            log.warning(&format!("Unable to fetch new config: {:?}", e));
+        } else {
+            let new_notify_config = new_notify_config?;
+            if notify_config != new_notify_config {
+                log.info(&format!("Config update loaded: {:?}", new_notify_config));
+                notify_config = new_notify_config;
+            }
+        }
+
         let current_games_result = ccrllive::get_current_games(&log);
 
         let Ok(current_games) = current_games_result else {
@@ -70,7 +90,7 @@ fn main() -> Result<()> {
         for (room, game) in &new_games {
             let mut mentions = HashSet::new();
 
-            for (engine, notifies) in &config.engines {
+            for (engine, notifies) in &notify_config.engines {
                 if game.has_player(engine) {
                     mentions.extend(notifies.iter().cloned());
                     log.info(&format!(
