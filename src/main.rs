@@ -66,7 +66,7 @@ fn main() -> Result<()> {
         let Ok(current_games) = current_games_result else {
             let e = current_games_result.unwrap_err();
 
-            log.error(&format!("Unable to send notify: {:?}", e));
+            log.warn(&format!("Unable to fetch in-progress games: {:?}", e));
 
             std::thread::sleep(POLL_DELAY);
             continue;
