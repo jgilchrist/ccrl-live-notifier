@@ -93,6 +93,13 @@ fn main() -> Result<()> {
             .collect::<Vec<_>>();
 
         for (room, game) in &new_games {
+            log.info(&format!(
+                "`{}` - `{}` vs `{}`",
+                room.code(),
+                game.white_player,
+                game.black_player,
+            ));
+
             let mut mentions = HashSet::new();
 
             for (engine, notifies) in &notify_config.engines {
@@ -121,13 +128,6 @@ fn main() -> Result<()> {
                 if let Err(e) = notify_result {
                     log.error(&format!("Unable to send notify: {:?}", e));
                 }
-            } else {
-                log.info(&format!(
-                    "`{}` - `{}` vs `{}`",
-                    room.code(),
-                    game.white_player,
-                    game.black_player,
-                ));
             }
 
             let write_state_result = seen_games.add(game);
