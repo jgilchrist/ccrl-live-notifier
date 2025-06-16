@@ -21,7 +21,6 @@ Add your user ID to the config file, with any engine names you're interested in.
 
 ```json
 {
-  "rooms": ["..."],
   "users": {
     "myuserid": [
       "my_engine_name"
@@ -29,11 +28,3 @@ Add your user ID to the config file, with any engine names you're interested in.
   }
 }
 ```
-
-### Running
-
-```sh
-$ cargo run -- --discord-webhook [...]
-```
-
-By default, the config file is assumed to live in the same directory as `config.json`. If it's elsewhere, pass the path via `--config`.
