@@ -40,7 +40,7 @@ pub fn get_notify_config(config: &Config) -> Result<NotifyConfig> {
 
     let config_file_contents = response.text()?;
 
-    let config_file = serde_json::from_str::<ConfigFile>(&config_file_contents)?;
+    let config_file = serde_json5::from_str::<ConfigFile>(&config_file_contents)?;
 
     let mut engines_to_users: HashMap<String, HashSet<String>> = HashMap::new();
 
