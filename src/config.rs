@@ -1,4 +1,3 @@
-use crate::cli::CliOptions;
 use anyhow::Result;
 use reqwest::Url;
 use serde::Deserialize;
@@ -20,11 +19,15 @@ struct ConfigFile {
     pub users: HashMap<String, HashSet<String>>,
 }
 
-pub fn get_config(cli_options: CliOptions) -> Result<Config> {
+pub fn get_config() -> Result<Config> {
+    let config_url = std::env::var("CCRL_CONFIG_URL")?;
+    let notify_webhook = std::env::var("CCRL_NOTIFY_WEBHOOK")?;
+    let log_webhook = std::env::var("CCRL_LOG_WEBHOOK").ok();
+
     Ok(Config {
-        config_url: Url::parse(&cli_options.config_url)?,
-        notify_webhook: cli_options.notify_webhook.clone(),
-        log_webhook: cli_options.log_webhook.clone(),
+        config_url: Url::parse(&config_url)?,
+        notify_webhook,
+        log_webhook,
     })
 }
 

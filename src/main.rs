@@ -9,7 +9,6 @@ use std::time::Duration;
 
 mod ccrl_pgn;
 mod ccrllive;
-mod cli;
 mod config;
 mod discord;
 mod log;
@@ -25,14 +24,12 @@ impl PartialEq for NotifyConfig {
 }
 
 fn main() -> Result<()> {
-    let cli_options = cli::get_cli_options().expect("Unable to parse CLI");
-    let config = config::get_config(cli_options).expect("Unable to load config");
+    let config = config::get_config().expect("Unable to load config");
     let log = log::get_logger(&config);
 
     std::panic::set_hook(Box::new(|info| {
         // FIXME: Lifetimes mean we need to re-do this initialisation in the panic handler.
-        let cli_options = cli::get_cli_options().unwrap();
-        let config = config::get_config(cli_options).unwrap();
+        let config = config::get_config().unwrap();
         let log = log::get_logger(&config);
         log.panic(info);
     }));
