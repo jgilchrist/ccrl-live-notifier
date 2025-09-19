@@ -14,7 +14,7 @@ pub struct NotifyContent {
 pub fn notify(config: &Config, content: NotifyContent) -> Result<()> {
     let mentions_str = if !content.mentions.is_empty() {
         "   cc. ".to_string()
-            + &content
+            + content
                 .mentions
                 .iter()
                 .map(|m| format!("<@!{}>", m))
