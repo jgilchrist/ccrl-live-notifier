@@ -4,6 +4,7 @@ use crate::log::Logger;
 use anyhow::Result;
 use std::fmt::Formatter;
 use std::hash::Hasher;
+use regex::Regex;
 
 const CCRL_LIVE_ROOMS_URL: &str = "https://ccrl.live/broadcasts";
 
@@ -34,27 +35,54 @@ impl CcrlLiveRoom {
     }
 }
 
+#[derive(Debug, Clone, Hash)]
+pub struct EngineName(String);
+
+impl EngineName {
+    pub fn new(name: &str) -> Self {
+        Self(name.to_string())
+    }
+
+    fn normalized(&self) -> String {
+        let mut name = self.0.to_string();
+        name = name.to_ascii_lowercase();
+
+        // Remove '64-bit' suffix which is appended to many engine names in CCRL
+        name = name.strip_suffix("64-bit").map(|s| s.trim().to_string()).unwrap_or(name);
+
+        let version_regex = Regex::new(r"v?(\d+)(\.\d+)?(\.\d+)?$").unwrap();
+        name = version_regex.replace_all(&name, "").trim().to_string();
+
+        name
+    }
+}
+
+impl PartialEq for EngineName {
+    fn eq(&self, other: &Self) -> bool {
+        self.normalized() == other.normalized()
+    }
+}
+
+impl std::fmt::Display for EngineName {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct CcrlLivePlayer {
-    name: String,
+    name: EngineName,
 }
 
 impl CcrlLivePlayer {
-    pub fn new(name: String) -> Self {
-        Self { name }
+    pub fn new(name: &str) -> Self {
+        Self {
+            name: EngineName::new(&name),
+        }
     }
 
-    pub fn matches(&self, search: &str) -> bool {
-        if self
-            .name
-            .to_ascii_lowercase()
-            .contains(&search.to_ascii_lowercase())
-        {
-            return true;
-        }
-
-        // TODO: Normalisation (i.e. remove 64-bit)
-        false
+    pub fn matches(&self, name: &str) -> bool {
+        self.name == EngineName::new(&name)
     }
 }
 
@@ -135,4 +163,24 @@ pub fn get_current_games(log: &dyn Logger) -> Result<Vec<(CcrlLiveRoom, Pgn)>> {
     }
 
     Ok(pgns)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_matches_does_not_match_substring() {
+        let player = CcrlLivePlayer::new("Lunar");
+
+        assert!(player.matches("Lunar"));
+        assert!(!player.matches("Luna"));
+    }
+
+    #[test]
+    fn test_matches_ignores_version() {
+        assert!(CcrlLivePlayer::new("Lunar 2").matches("Lunar"));
+        assert!(CcrlLivePlayer::new("Lunar 2.0").matches("Lunar"));
+        assert!(CcrlLivePlayer::new("Lunar 2.0.1").matches("Lunar"));
+    }
 }

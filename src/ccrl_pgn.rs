@@ -1,4 +1,4 @@
-use crate::ccrllive::CcrlLivePlayer;
+use crate::ccrllive::{CcrlLivePlayer};
 use anyhow::{bail, Result};
 use pgn_reader::{BufferedReader, RawComment, RawHeader, SanPlus, Skip, Visitor};
 use std::hash::{Hash, Hasher};
@@ -153,8 +153,8 @@ impl Visitor for PgnInfoBuilder {
         assert_ne!(self.date, None);
 
         Pgn {
-            white_player: CcrlLivePlayer::new(self.white_player.clone().unwrap()),
-            black_player: CcrlLivePlayer::new(self.black_player.clone().unwrap()),
+            white_player: CcrlLivePlayer::new(&self.white_player.clone().unwrap()),
+            black_player: CcrlLivePlayer::new(&self.black_player.clone().unwrap()),
             date: self.date.clone().unwrap(),
             moves: self.moves.clone(),
         }
