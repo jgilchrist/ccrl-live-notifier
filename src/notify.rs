@@ -8,6 +8,7 @@ pub struct NotifyContent {
     pub white_player: CcrlLivePlayer,
     pub black_player: CcrlLivePlayer,
     pub room: CcrlLiveRoom,
+    pub tournament: String,
     pub mentions: HashSet<String>,
 }
 
@@ -28,8 +29,9 @@ pub fn notify(config: &Config, content: NotifyContent) -> Result<()> {
     discord::send_message(
         &config.notify_webhook,
         &format!(
-            "[`{}`]({}) `{}` vs. `{}`{}",
+            "[`{} - {}`]({}) `{}` vs. `{}`{}",
             content.room.code(),
+            content.tournament,
             content.room.url(),
             content.white_player,
             content.black_player,

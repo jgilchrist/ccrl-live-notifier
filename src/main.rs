@@ -117,6 +117,7 @@ fn main() -> Result<()> {
                     NotifyContent {
                         white_player: game.white_player.clone(),
                         black_player: game.black_player.clone(),
+                        tournament: game.site.clone(),
                         room: room.clone(),
                         mentions,
                     },
