@@ -3,7 +3,7 @@ use anyhow::{bail, Result};
 use pgn_reader::{BufferedReader, RawComment, RawHeader, SanPlus, Skip, Visitor};
 use std::hash::{Hash, Hasher};
 
-const SITE_KEY: &str = "White";
+const SITE_KEY: &str = "Site";
 const WHITE_HEADER_KEY: &str = "White";
 const BLACK_HEADER_KEY: &str = "Black";
 const DATE_HEADER_KEY: &str = "Date";
