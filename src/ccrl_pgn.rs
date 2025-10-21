@@ -3,6 +3,7 @@ use anyhow::{bail, Result};
 use pgn_reader::{BufferedReader, RawComment, RawHeader, SanPlus, Skip, Visitor};
 use std::hash::{Hash, Hasher};
 
+const SITE_KEY: &str = "White";
 const WHITE_HEADER_KEY: &str = "White";
 const BLACK_HEADER_KEY: &str = "Black";
 const DATE_HEADER_KEY: &str = "Date";
@@ -19,6 +20,7 @@ pub struct Pgn {
     pub white_player: CcrlLivePlayer,
     pub black_player: CcrlLivePlayer,
     pub date: String,
+    pub site: String,
 
     pub moves: Vec<PgnMove>,
 }
@@ -83,6 +85,8 @@ struct PgnInfoBuilder {
     pub white_player: Option<String>,
     pub black_player: Option<String>,
     pub date: Option<String>,
+    pub site: Option<String>,
+
     pub moves: Vec<PgnMove>,
 
     pub last_san: Option<String>,
@@ -94,6 +98,7 @@ impl PgnInfoBuilder {
             white_player: None,
             black_player: None,
             date: None,
+            site: None,
             moves: vec![],
 
             last_san: None,
@@ -107,6 +112,10 @@ impl Visitor for PgnInfoBuilder {
     fn header(&mut self, key: &[u8], value: RawHeader<'_>) {
         let key = String::from_utf8_lossy(key);
         let value = value.decode_utf8_lossy();
+
+        if key == SITE_KEY {
+            self.site = Some(value.to_string());
+        }
 
         if key == WHITE_HEADER_KEY {
             self.white_player = Some(value.to_string());
@@ -151,11 +160,13 @@ impl Visitor for PgnInfoBuilder {
         assert_ne!(self.white_player, None);
         assert_ne!(self.black_player, None);
         assert_ne!(self.date, None);
+        assert_ne!(self.site, None);
 
         Pgn {
             white_player: CcrlLivePlayer::new(&self.white_player.clone().unwrap()),
             black_player: CcrlLivePlayer::new(&self.black_player.clone().unwrap()),
             date: self.date.clone().unwrap(),
+            site: self.site.clone().unwrap(),
             moves: self.moves.clone(),
         }
     }
@@ -191,6 +202,7 @@ mod tests {
         assert!(pgn_info.white_player.matches("RookieMonster 1.9.9"));
         assert!(pgn_info.black_player.matches("Betsabe_II 2023"));
         assert_eq!(pgn_info.date, "2025.01.06");
+        assert_eq!(pgn_info.site, "114th Amateur D11");
         assert!(pgn_info.out_of_book())
     }
 
