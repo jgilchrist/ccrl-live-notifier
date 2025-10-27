@@ -50,8 +50,13 @@ impl EngineName {
         // Remove '64-bit' suffix which is appended to many engine names in CCRL
         name = name.strip_suffix("64-bit").map(|s| s.trim().to_string()).unwrap_or(name);
 
-        let version_regex = Regex::new(r"v?(\d+)(\.\d+)?(\.\d+)?$").unwrap();
+        // v1.2.3
+        let version_regex = Regex::new(r" v?(\d+)(\.\d+)?(\.\d+)?$").unwrap();
         name = version_regex.replace_all(&name, "").trim().to_string();
+
+        // 2025a
+        let date_version_regex = Regex::new(r" \d{4}[a-zA-Z]").unwrap();
+        name = date_version_regex.replace_all(&name, "").trim().to_string();
 
         name
     }
@@ -182,5 +187,10 @@ mod tests {
         assert!(CcrlLivePlayer::new("Lunar 2").matches("Lunar"));
         assert!(CcrlLivePlayer::new("Lunar 2.0").matches("Lunar"));
         assert!(CcrlLivePlayer::new("Lunar 2.0.1").matches("Lunar"));
+    }
+
+    #[test]
+    fn test_matches_ignores_date_version() {
+        assert!(CcrlLivePlayer::new("Colossus 2025b").matches("Colossus"));
     }
 }
