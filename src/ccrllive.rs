@@ -2,9 +2,9 @@ use crate::ccrl_pgn;
 use crate::ccrl_pgn::Pgn;
 use crate::log::Logger;
 use anyhow::Result;
+use regex::Regex;
 use std::fmt::Formatter;
 use std::hash::Hasher;
-use regex::Regex;
 
 const CCRL_LIVE_ROOMS_URL: &str = "https://ccrl.live/broadcasts";
 
@@ -48,7 +48,10 @@ impl EngineName {
         name = name.to_ascii_lowercase();
 
         // Remove '64-bit' suffix which is appended to many engine names in CCRL
-        name = name.strip_suffix("64-bit").map(|s| s.trim().to_string()).unwrap_or(name);
+        name = name
+            .strip_suffix("64-bit")
+            .map(|s| s.trim().to_string())
+            .unwrap_or(name);
 
         // v1.2.3
         let version_regex = Regex::new(r" v?(\d+)(\.\d+)?(\.\d+)?$").unwrap();

@@ -1,4 +1,4 @@
-use crate::ccrllive::{CcrlLivePlayer};
+use crate::ccrllive::CcrlLivePlayer;
 use anyhow::{bail, Result};
 use pgn_reader::{BufferedReader, RawComment, RawHeader, SanPlus, Skip, Visitor};
 use std::hash::{Hash, Hasher};

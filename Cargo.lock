@@ -98,6 +98,7 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_json5",
+ "serde_regex",
 ]
 
 [[package]]
@@ -955,6 +956,16 @@ checksum = "5d34d03f54462862f2a42918391c9526337f53171eaa4d8894562be7f252edd3"
 dependencies = [
  "pest",
  "pest_derive",
+ "serde",
+]
+
+[[package]]
+name = "serde_regex"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a8136f1a4ea815d7eac4101cfd0b16dc0cb5e1fe1b8609dfd728058656b7badf"
+dependencies = [
+ "regex",
  "serde",
 ]
 

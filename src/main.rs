@@ -1,9 +1,7 @@
-use crate::config::NotifyConfig;
 use crate::log::Logger;
 use crate::notify::NotifyContent;
 use crate::state::SeenGames;
 use anyhow::Result;
-use std::cmp::PartialEq;
 use std::collections::HashSet;
 use std::time::Duration;
 
@@ -16,12 +14,6 @@ mod notify;
 mod state;
 
 const POLL_DELAY: Duration = Duration::from_secs(30);
-
-impl PartialEq for NotifyConfig {
-    fn eq(&self, other: &Self) -> bool {
-        self.engines == other.engines
-    }
-}
 
 fn main() -> Result<()> {
     let config = config::get_config().expect("Unable to load config");
@@ -99,15 +91,24 @@ fn main() -> Result<()> {
 
             let mut mentions = HashSet::new();
 
-            for (engine, notifies) in &notify_config.engines {
+            for (engine, user_configs) in &notify_config.engines {
                 if game.has_player(engine) {
-                    mentions.extend(notifies.iter().cloned());
-                    log.info(&format!(
-                        "`{}` Will notify {} users for engine `{}`",
-                        room.code(),
-                        notifies.len(),
-                        &engine,
-                    ));
+                    // Filter users based on tournament rules
+                    let matching_users: Vec<String> = user_configs
+                        .iter()
+                        .filter(|user_config| user_config.rules.notify_for_tournament(&game.site))
+                        .map(|user_config| user_config.user_id.clone())
+                        .collect();
+
+                    if !matching_users.is_empty() {
+                        mentions.extend(matching_users.iter().cloned());
+                        log.info(&format!(
+                            "`{}` Will notify {} users for engine `{}`",
+                            room.code(),
+                            matching_users.len(),
+                            &engine,
+                        ));
+                    }
                 }
             }
 
