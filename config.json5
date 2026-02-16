@@ -3,7 +3,6 @@
     "106120945231466496": {
         "engines": ["Tcheran"],
         "rules": [
-            { "action": "notify", "pattern": "Tcheran Gauntlet" },
             { "action": "ignore", "pattern": ".* Gauntlet" },
         ],
     },
