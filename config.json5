@@ -1,11 +1,5 @@
 {
   "users": {
-    "106120945231466496": {
-        "engines": ["Tcheran"],
-        "rules": [
-            { "action": "ignore", "pattern": ".* Gauntlet" },
-        ],
-    },
     "707990522400342046": { "engines": ["Nalwald"] },
     "513784399599370270": { "engines": ["Lynx"] },
     "220689459224641536": { "engines": ["Illumina", "Luna"] },
